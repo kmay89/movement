@@ -2,7 +2,7 @@
 // water, and today's plan. Never a wall of numbers.
 
 import { store } from '../store.js';
-import { esc, toast, greeting, artBg } from '../ui.js';
+import { esc, toast, greeting, artBg, cheer, logCheers, maybeCelebrateGoal } from '../ui.js';
 import { sessions, sessionById } from '../data/sessions.js';
 import { sparkForToday } from '../data/sparks.js';
 import { activities, byId } from '../data/activities.js';
@@ -22,6 +22,21 @@ function weekdayIndex(d = new Date()) {
   return (d.getDay() + 6) % 7; // 0 = Monday
 }
 
+const restHeadlines = [
+  'A good time to move is whenever you do.',
+  'Five minutes counts. It all counts.',
+  'Your body has been waiting all day to be lived in.',
+  'Somewhere out there is a walk with your name on it.',
+  'No pressure here. Just an open door.',
+];
+
+const movedHeadlines = m => [
+  `You’ve moved ${m} minutes today. Lovely.`,
+  `${m} minutes today — your heart noticed.`,
+  `${m} minutes in the bank. Look at you.`,
+  `${m} minutes of being gloriously alive today.`,
+];
+
 export function render(el) {
   const s = store.get();
   const todayMin = store.minutesOn(store.todayKey());
@@ -39,9 +54,7 @@ export function render(el) {
   el.innerHTML = `
     <div class="hero">
       <div class="eyebrow">${esc(greeting())}${name}</div>
-      <h1>${todayMin >= 5
-        ? `You’ve moved ${todayMin} minutes today. Lovely.`
-        : `A good time to move is whenever you do.`}</h1>
+      <h1>${todayMin >= 5 ? esc(cheer(movedHeadlines(todayMin))) : esc(cheer(restHeadlines))}</h1>
       <a class="btn" href="#/session/${suggestion.id}">
         <span>${suggestion.em}</span> ${esc(suggestion.title)} · ${suggestion.minutes} min
       </a>
@@ -103,8 +116,9 @@ export function render(el) {
     btn.addEventListener('click', () => {
       const p = s.plan.find(x => x.id === btn.dataset.doplan);
       if (!p) return;
+      const weekBefore = store.minutesThisWeek();
       store.logMovement({ minutes: p.minutes, activity: p.activity });
-      toast('Logged. Promise kept. 🌱');
+      if (!maybeCelebrateGoal(weekBefore)) toast('Logged. Promise kept. 🌱');
       render(el);
     }));
 
@@ -153,9 +167,12 @@ export function openQuickLog(onDone) {
     const activity = dlg.querySelector('#ql-act .chip.on')?.dataset.a || 'other';
     const minutes = Number(dlg.querySelector('#ql-min .chip.on')?.dataset.m || 15);
     const withOthers = dlg.querySelector('#ql-with').checked;
+    const weekBefore = store.minutesThisWeek();
     store.logMovement({ minutes, activity, withOthers });
     dlg.close();
-    toast(withOthers ? 'Logged — movement and company. Both count. 💚' : 'Logged. It all counts. 💚');
+    if (!maybeCelebrateGoal(weekBefore)) {
+      toast(withOthers ? 'Logged — movement and company. Both count. 💚' : cheer(logCheers));
+    }
     if (onDone) onDone();
   });
 }

@@ -455,6 +455,14 @@ h2.section-title {
 .pbtn.main { background: #fff; color: #0c4a42; padding: 15px 44px; }
 .pbtn:active { transform: scale(0.96); }
 
+/* an inviting heartbeat on Start, and a gentle bob once you're moving */
+.pbtn.main.pulse { animation: gentle-pulse 2.2s ease-in-out infinite; }
+@keyframes gentle-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+.player-hero .em { display: inline-block; }
+.player-hero .em.moving { animation: bob 2.6s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
 /* ---------- article ---------- */
 
 .article h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; margin: 10px 0 6px; }

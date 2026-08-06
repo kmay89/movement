@@ -45,8 +45,9 @@ export function render(el) {
         ${[90, 150, 200, 300].map(g =>
           `<button class="chip ${(s.settings.weeklyGoalMin || 150) === g ? 'on' : ''}" data-g="${g}">${g}${g === 150 ? ' (WHO)' : ''}</button>`).join('')}
       </div>
-      <label class="field row" style="gap:8px; align-items:center">
+      <label class="field row" style="gap:8px; align-items:center; flex-wrap:wrap">
         <input type="checkbox" id="u-voice" ${s.settings.voice ? 'checked' : ''} style="width:auto"> Coach voice in guided sessions
+        <span class="tiny" style="font-weight:400; width:100%">It’s your phone’s built-in voice — charmingly robotic for now; recorded human coaches are on the roadmap. Off = text-only cues.</span>
       </label>
       <button class="btn block mt12" id="u-save">Save</button>
     </div>
