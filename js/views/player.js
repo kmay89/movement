@@ -4,7 +4,7 @@
 
 import { store } from '../store.js';
 import { coach } from '../audio.js';
-import { esc, toast, fmtClock } from '../ui.js';
+import { esc, toast, fmtClock, confetti, maybeCelebrateGoal } from '../ui.js';
 import { sessionById } from '../data/sessions.js';
 import { byId as activityById } from '../data/activities.js';
 
@@ -57,11 +57,13 @@ export function render(el, params) {
 
       <div class="player-meter" ${guided ? '' : 'hidden'}><i id="p-meter" style="width:0%"></i></div>
       <div class="player-controls">
-        <button class="pbtn main" id="p-main">Start</button>
+        <button class="pbtn main pulse" id="p-main">Start</button>
         <button class="pbtn" id="p-end" hidden>End</button>
       </div>
       <p class="center tiny" style="opacity:.65; margin-top:12px" id="p-hint">
-        ${store.get().settings.voice ? 'Your coach speaks out loud — headphones or speaker both work.' : 'Voice is off — cues appear as text. Turn voice on in You → Settings.'}
+        ${store.get().settings.voice
+          ? 'Heads up: your coach borrows your phone’s built-in voice — a little robotic, we know 🤖 Think friendly GPS, not drill sergeant. Prefer quiet? Text-only lives in You → Settings.'
+          : 'Voice is off — cues appear as text. Turn voice on in You → Settings.'}
       </p>
     </div>
   `;
@@ -94,16 +96,25 @@ export function render(el, params) {
     grabWakeLock();
     clockEl.hidden = false; segEl.hidden = guided ? false : true;
     mainBtn.textContent = 'Pause';
+    mainBtn.classList.remove('pulse');
     endBtn.hidden = false;
     $('#p-hint').hidden = true;
     el.querySelectorAll('.player-hero .ph-sub').forEach(n => n.remove());
+    el.querySelector('.player-hero .em')?.classList.add('moving');
+
+    // The first time the coach ever speaks, it owns the robot voice with a wink.
+    if (store.get().settings.voice && !store.get().settings.metCoach) {
+      store.update(s => { s.settings.metCoach = true; });
+      coach.say('Quick hello before we begin. Yes — this is your phone’s built-in voice. I know, a little robotic. A real human coach is on the roadmap; until then I promise to be the warmest robot you know. Alright — let’s move.');
+    }
+
     tick = setInterval(update, 400);
     update();
   }
 
   function pause() {
+    accumulated = elapsed(); // bank time BEFORE stopping the clock, or it's lost
     running = false;
-    accumulated = elapsed();
     mainBtn.textContent = 'Resume';
     coach.hush();
     coach.say('Paused. Take what you need.');
@@ -150,7 +161,8 @@ export function render(el, params) {
     coach.hush();
     wakeLock?.release?.();
     if (minutes < 1) { close(); return; }
-    coach.chime(); coach.buzz([60, 80, 60]);
+    coach.fanfare(); coach.buzz([60, 80, 60]);
+    confetti(completed ? 130 : 70);
     if (completed) coach.say('And that is the session. Beautifully done.');
 
     $('#p-body').innerHTML = `
@@ -168,6 +180,7 @@ export function render(el, params) {
     $('#p-mood').addEventListener('click', e => {
       const b = e.target.closest('[data-mood]');
       if (!b) return;
+      const weekBefore = store.minutesThisWeek();
       store.logMovement({
         minutes,
         activity: activity.id,
@@ -175,7 +188,9 @@ export function render(el, params) {
         mood: b.dataset.mood,
       });
       close('#/today');
-      toast(`Logged ${minutes} min. See you next time. 💚`);
+      if (!maybeCelebrateGoal(weekBefore)) {
+        toast(`Logged ${minutes} min. See you next time. 💚`);
+      }
     });
   }
 

@@ -1,7 +1,7 @@
 // Movement service worker — offline-first so your coach works on any trail,
 // in any basement gym, on any airplane.
 
-const VERSION = 'movement-v1.0.0';
+const VERSION = 'movement-v1.1.0';
 
 const CORE = [
   './',
