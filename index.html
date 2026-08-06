@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Movement — make moving feel like living</title>
+  <meta name="description" content="A warm, research-rooted companion that helps you weave movement into your day — guided sessions, gentle plans, and friends to move with.">
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#0e5b52" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b1f1c" media="(prefers-color-scheme: dark)">
+
+  <!-- iOS install / standalone -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Movement">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+
+  <link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+  <div id="app" aria-live="polite">
+    <main id="view" class="view" tabindex="-1"></main>
+
+    <nav id="tabbar" class="tabbar" aria-label="Main">
+      <a href="#/today" data-tab="today" class="tab">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path class="stroke" d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></svg>
+        <span>Today</span>
+      </a>
+      <a href="#/move" data-tab="move" class="tab">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="15.5" cy="4.5" r="2.1"/><path class="stroke wide" d="M12.7 8.2l2.9 1.6-1 4.6 3.2 4.9M12.7 8.2L9.4 10l-1 3.6M12.7 8.2l1.3 5-4.2 2.6-1.6 4.7"/></svg>
+        <span>Move</span>
+      </a>
+      <a href="#/learn" data-tab="learn" class="tab">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="stroke" d="M12 5.6C10.2 4 7.6 3.4 4.5 3.6c-.6 0-1 .5-1 1v13c0 .6.5 1 1.1 1 2.9-.1 5.3.5 7.4 2 2.1-1.5 4.5-2.1 7.4-2 .6 0 1.1-.4 1.1-1v-13c0-.5-.4-1-1-1-3.1-.2-5.7.4-7.5 2z"/><path class="stroke" d="M12 5.6v14.6"/></svg>
+        <span>Learn</span>
+      </a>
+      <a href="#/together" data-tab="together" class="tab">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8.2" cy="8.4" r="2.6"/><circle cx="16.2" cy="9.6" r="2.1"/><path class="stroke wide" d="M3.6 19.4c.5-3.2 2.3-5 4.6-5s4.1 1.8 4.6 5M12.9 18.6c.5-2.3 1.8-3.7 3.3-3.7 1.6 0 2.9 1.4 3.4 3.7"/></svg>
+        <span>Together</span>
+      </a>
+      <a href="#/you" data-tab="you" class="tab">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.6s-7.6-4.6-9.2-9.5C1.7 7.7 3.5 4.8 6.4 4.4c1.9-.3 3.8.6 5.6 2.7 1.8-2.1 3.7-3 5.6-2.7 2.9.4 4.7 3.3 3.6 6.7-1.6 4.9-9.2 9.5-9.2 9.5z"/></svg>
+        <span>You</span>
+      </a>
+    </nav>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

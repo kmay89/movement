@@ -1,0 +1,33 @@
+{
+  "name": "Movement — make moving feel like living",
+  "short_name": "Movement",
+  "description": "A warm, research-rooted companion that helps you weave movement into your day — guided sessions, gentle plans, and friends to move with.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f3ec",
+  "theme_color": "#0e5b52",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick log",
+      "short_name": "Log",
+      "description": "Log movement you already did",
+      "url": "./index.html#/today",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Start a session",
+      "short_name": "Move",
+      "description": "Pick a guided session",
+      "url": "./index.html#/move",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
