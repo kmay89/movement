@@ -93,8 +93,9 @@ export function maybeCelebrateGoal(weekMinBefore) {
   return false;
 }
 
-// Session-card art backgrounds per color tag.
-export const artBg = {
+// Soft tints for light-background cards (the Learn library). Session cards
+// use the full palettes from visuals.js instead.
+export const softBg = {
   brand: 'var(--brand-soft)',
   accent: 'var(--accent-soft)',
   gold: 'var(--gold-soft)',

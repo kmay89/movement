@@ -1,8 +1,9 @@
 // Move — the library of guided sessions plus "just move" freestyle mode.
 
-import { esc, artBg } from '../ui.js';
+import { esc } from '../ui.js';
 import { sessions } from '../data/sessions.js';
 import { activities } from '../data/activities.js';
+import { paletteFor } from '../visuals.js';
 
 export function render(el) {
   el.innerHTML = `
@@ -15,15 +16,21 @@ export function render(el) {
     </a>
 
     <h2 class="section-title">Guided sessions</h2>
-    ${sessions.map(s => `
+    ${sessions.map(s => {
+      const p = paletteFor(s.color);
+      return `
       <a class="card card-link session-card" href="#/session/${s.id}">
-        <div class="session-art" style="background:${artBg[s.color] || 'var(--brand-soft)'}">${s.em}</div>
+        <div class="session-art world" style="background:linear-gradient(145deg, ${p.deep}, ${p.mid} 60%, ${p.lift})">
+          <span class="wa-ring" style="color:${p.ink}"></span>
+          <span class="wa-em">${s.em}</span>
+        </div>
         <div class="session-body">
           <h3>${esc(s.title)}</h3>
           <p>${esc(s.tagline)}</p>
           <div class="session-meta">${s.minutes} min · ${esc(s.level)}</div>
         </div>
-      </a>`).join('')}
+      </a>`;
+    }).join('')}
 
     <h2 class="section-title">Or just move — your way</h2>
     <p class="muted" style="margin-bottom:12px">Pick anything. A gentle timer keeps you company and it all counts the same.</p>

@@ -2,10 +2,13 @@
 // water, and today's plan. Never a wall of numbers.
 
 import { store } from '../store.js';
-import { esc, toast, greeting, artBg, cheer, logCheers, maybeCelebrateGoal } from '../ui.js';
+import { esc, toast, greeting, cheer, logCheers, maybeCelebrateGoal } from '../ui.js';
 import { sessions, sessionById } from '../data/sessions.js';
 import { sparkForToday } from '../data/sparks.js';
 import { activities, byId } from '../data/activities.js';
+import { zenField, paletteForHour } from '../visuals.js';
+
+let heroField = null; // torn down when Today is re-rendered or left
 
 function suggestSession() {
   const h = new Date().getHours();
@@ -51,13 +54,19 @@ export function render(el) {
 
   const pct = Math.min(100, Math.round((weekMin / goal) * 100));
 
+  const sky = paletteForHour();
+
   el.innerHTML = `
-    <div class="hero">
-      <div class="eyebrow">${esc(greeting())}${name}</div>
-      <h1>${todayMin >= 5 ? esc(cheer(movedHeadlines(todayMin))) : esc(cheer(restHeadlines))}</h1>
-      <a class="btn" href="#/session/${suggestion.id}">
-        <span>${suggestion.em}</span> ${esc(suggestion.title)} · ${suggestion.minutes} min
-      </a>
+    <div class="hero sky-${sky.sky}" style="--deep:${sky.deep}; --mid:${sky.mid}; --lift:${sky.lift}; --ink:${sky.ink}; --sun:${sky.sun}">
+      <canvas class="hero-zen" id="hero-zen" aria-hidden="true"></canvas>
+      <span class="hero-sun" aria-hidden="true"></span>
+      <div class="hero-content">
+        <div class="eyebrow">${esc(greeting())}${name}</div>
+        <h1>${todayMin >= 5 ? esc(cheer(movedHeadlines(todayMin))) : esc(cheer(restHeadlines))}</h1>
+        <a class="btn" href="#/session/${suggestion.id}">
+          <span>${suggestion.em}</span> ${esc(suggestion.title)} · ${suggestion.minutes} min
+        </a>
+      </div>
     </div>
 
     <div class="stat-row">
@@ -102,6 +111,10 @@ export function render(el) {
     <button class="btn ghost block mt8" id="quicklog">＋ I already moved — log it</button>
   `;
 
+  // The hero breathes with the hour you're actually in.
+  heroField?.stop();
+  heroField = zenField(el.querySelector('#hero-zen'), { palette: sky, density: 0.5 });
+
   // Water taps
   el.querySelector('#cups').addEventListener('click', e => {
     const btn = e.target.closest('[data-cup]');
@@ -123,6 +136,10 @@ export function render(el) {
     }));
 
   el.querySelector('#quicklog').addEventListener('click', () => openQuickLog(() => render(el)));
+
+  // Router cleanup when leaving Today. (Internal re-renders discard this, but
+  // each render stops the previous field above, so only one ever runs.)
+  return () => { heroField?.stop(); heroField = null; };
 }
 
 export function openQuickLog(onDone) {

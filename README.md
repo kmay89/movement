@@ -29,6 +29,32 @@ No shame. No ads. Everything counts.
 | **Plan** | Weekly if-then intentions, calendar export (.ics), reminder notifications |
 | **You** | 10-week heatmap, history, your “why,” settings, data export |
 
+## The look: stillness with something alive inside it
+
+Movement is built to feel calm and to keep you company — never busy, never
+shouty. Three ideas carry it (all in `js/visuals.js`, all pure canvas, no
+libraries):
+
+- **Ripples on water.** A slow field of concentric rings drifts behind every
+  session. Every time the coach speaks, a ripple is born — so the voice has a
+  visible echo, and the screen answers you.
+- **The ensō.** Your progress is drawn as a Japanese ensō: one brush stroke,
+  weighted heavy where it lands and tapering as it lifts, wet ink blooming at
+  the leading edge — and deliberately never quite closed, because neither is a
+  practice. The clock sits inside it.
+- **A breath pacer.** When the coach gives a breath cue, an orb rises and
+  paces 4 seconds in, 6 seconds out — the ratio that actually shifts the
+  nervous system — so you follow it instead of trying to remember it.
+
+Every session also has its **own color world** — sea, ember, amber, ocean or
+twilight — that tints its background, ensō and ripples, and previews as a
+thumbnail in the Move list. **Today wears the hour you're in**: dawn climbs
+from indigo through rose to amber, day is sea-green, dusk burns coral, and
+night is deep blue with stars and a moon.
+
+All of it respects `prefers-reduced-motion` by composing a still frame instead
+of animating, and it tears down cleanly when you leave the screen.
+
 ## Guided sessions
 
 Scripted coaching with timed voice cues (Web Speech API — free, offline, private),

@@ -15,7 +15,7 @@ const view = document.getElementById('view');
 let cleanup = null;
 
 const routes = [
-  { match: /^#\/today$/, tab: 'today', render: el => today.render(el) },
+  { match: /^#\/today$/, tab: 'today', render: el => today.render(el) }, // returns a cleanup
   { match: /^#\/move$/, tab: 'move', render: el => move.render(el) },
   { match: /^#\/learn$/, tab: 'learn', render: el => learn.render(el) },
   { match: /^#\/article\/([\w-]+)$/, tab: 'learn', render: (el, m) => learn.renderArticle(el, { articleId: m[1] }) },
