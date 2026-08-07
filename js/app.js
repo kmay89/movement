@@ -7,6 +7,7 @@ import * as player from './views/player.js';
 import * as learn from './views/learn.js';
 import * as together from './views/together.js';
 import * as plan from './views/plan.js';
+import * as programs from './views/programs.js';
 import * as you from './views/you.js';
 import { spotify } from './music.js';
 import { toast } from './ui.js';
@@ -17,6 +18,8 @@ let cleanup = null;
 const routes = [
   { match: /^#\/today$/, tab: 'today', render: el => today.render(el) }, // returns a cleanup
   { match: /^#\/move$/, tab: 'move', render: el => move.render(el) },
+  { match: /^#\/programs$/, tab: 'move', render: el => programs.render(el) },
+  { match: /^#\/program\/([\w-]+)$/, tab: 'move', render: (el, m) => programs.renderOne(el, { programId: m[1] }) },
   { match: /^#\/learn$/, tab: 'learn', render: el => learn.render(el) },
   { match: /^#\/article\/([\w-]+)$/, tab: 'learn', render: (el, m) => learn.renderArticle(el, { articleId: m[1] }) },
   { match: /^#\/together$/, tab: 'together', render: el => together.render(el) },

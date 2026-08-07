@@ -366,4 +366,173 @@ export const sessions = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// The progression ladder. These exist so a beginner can climb from one minute
+// of running to a 5K over eight weeks without ever facing a jump that feels
+// impossible. Same timing discipline as above: countdown before every
+// transition, short encouragement during effort, teaching in the recoveries.
+// ---------------------------------------------------------------------------
+
+// Builds the repetitive interval scaffolding so the ladder stays consistent
+// and the timings can't drift apart by hand.
+function intervalSession({ id, title, tagline, minutes, level, science, warmup, reps, runSec, walkSec, cues }) {
+  const segments = [{ at: 0, label: 'Warm-up walk' }];
+  let t = warmup;
+  for (let i = 0; i < reps; i++) {
+    segments.push({ at: t, label: `Run ${i + 1} · ${runSec / 60 >= 1 ? runSec / 60 + ' min' : runSec + 's'}` });
+    t += runSec;
+    if (i < reps - 1) {
+      segments.push({ at: t, label: `Recover · ${Math.round(walkSec / 60)} min` });
+      t += walkSec;
+    }
+  }
+  segments.push({ at: t, label: 'Cool-down walk' });
+  return {
+    id, title, tagline, em: '🏃', activity: 'run', minutes, level,
+    color: 'accent', science, segments,
+    cues: cues({ warmup, runSec, walkSec, reps, total: minutes * 60 }),
+  };
+}
+
+// Cue script shared by every rung of the ladder — the words change with the
+// rung, the shape does not.
+function ladderCues(teachings) {
+  return ({ warmup, runSec, walkSec, reps, total }) => {
+    const c = [
+      { at: 0, kind: 'welcome', say: 'Welcome back. Five easy minutes of walking first — no rush, we are just waking the legs.' },
+      { at: 90, kind: 'form', say: 'Walk tall, shoulders down, arms swinging easy. Same posture we will keep when we run.' },
+      { at: 200, kind: 'science', say: teachings[0] },
+    ];
+    let t = warmup;
+    for (let i = 0; i < reps; i++) {
+      c.push({ at: t - 10, kind: 'interval', say: i === 0 ? 'Ten seconds. Start slower than feels necessary.' : `Ten seconds to run ${i + 1}.` });
+      c.push({ at: t, kind: 'interval', say: i === 0 ? 'Run. Easy and springy.' : 'Run. Same easy pace.' });
+      if (runSec >= 240) c.push({ at: t + Math.round(runSec / 2), kind: 'motivate', say: 'Halfway through this one. Relax your hands, relax your jaw.' });
+      else c.push({ at: t + Math.round(runSec * 0.6), kind: 'motivate', say: 'Nearly there. Stay smooth.' });
+      t += runSec;
+      if (i < reps - 1) {
+        c.push({ at: t, kind: 'interval', say: `And walk. ${i + 1} of ${reps} done — shake the arms out.` });
+        const teach = teachings[1 + (i % Math.max(1, teachings.length - 1))];
+        if (teach) c.push({ at: t + Math.round(walkSec * 0.4), kind: 'science', say: teach });
+        t += walkSec;
+      }
+    }
+    c.push({ at: t, kind: 'interval', say: 'And walk it home. Every one of those is in the bank now.' });
+    c.push({ at: total - 60, kind: 'close', say: 'Done. This is what building looks like — small rungs, climbed on purpose. See you next session.' });
+    return c;
+  };
+}
+
+sessions.push(
+  intervalSession({
+    id: 'run-2min', title: 'Two-Minute Runs', tagline: 'Five runs of two minutes. The first real rung up.',
+    minutes: 25, level: 'After your first minute', warmup: 300, reps: 5, runSec: 120, walkSec: 90,
+    science: 'Progressive overload with full recoveries is how running is built safely — adding a little each week lets tendons and bone adapt alongside the heart and lungs, which adapt faster.',
+    cues: ladderCues([
+      'Two minutes today instead of one. That is not a small step — it is double, and your body is ready for it.',
+      'Your tendons and bones adapt more slowly than your heart and lungs. That is exactly why we climb in small rungs like this.',
+      'Notice how the recovery walk feels shorter than it did last week. That is your heart getting better at its job.',
+      'Every easy recovery is doing real work — it is teaching your body to clear effort and go again.',
+    ]),
+  }),
+  intervalSession({
+    id: 'run-3min', title: 'Three-Minute Runs', tagline: 'Four runs of three minutes. Rhythm starts to appear.',
+    minutes: 25, level: 'Comfortable with 2-minute runs', warmup: 300, reps: 4, runSec: 180, walkSec: 120,
+    science: 'Around the three-minute mark your aerobic system takes over from the fast-burning stuff — this is where the endurance engine you are building actually starts to run the show.',
+    cues: ladderCues([
+      'Three minutes today. Somewhere in here, your aerobic engine takes the wheel — that is the system we are building.',
+      'If you can still talk in full sentences, you are exactly right. Speed is not the point for months yet.',
+      'Your body is making more mitochondria — tiny engines inside muscle cells — every time you do this.',
+      'Runners call this base building. It is unglamorous, and it is the whole foundation.',
+    ]),
+  }),
+  intervalSession({
+    id: 'run-5min', title: 'Five-Minute Runs', tagline: 'Three runs of five minutes. Now you are a runner.',
+    minutes: 28, level: 'Comfortable with 3-minute runs', warmup: 300, reps: 3, runSec: 300, walkSec: 150,
+    science: 'Five continuous minutes is a real aerobic effort — and running just 5–10 minutes a day is associated with a 30–45% lower risk of cardiovascular death.',
+    cues: ladderCues([
+      'Five minutes at a time today. Worth knowing: five to ten minutes of running a day is linked with a substantially lower risk of dying from heart disease.',
+      'Settle in. Long efforts are won by starting slower than you want to.',
+      'This is the pace you will build everything else on. Learn how it feels.',
+      'Three of these is fifteen minutes of running. A month ago that was four separate minutes.',
+    ]),
+  }),
+  intervalSession({
+    id: 'run-10min', title: 'Ten-Minute Runs', tagline: 'Two runs of ten minutes. The 5K is close now.',
+    minutes: 30, level: 'Comfortable with 5-minute runs', warmup: 300, reps: 2, runSec: 600, walkSec: 180,
+    science: 'Two ten-minute efforts with a walk between them is nearly the full 5K distance for most beginners — the body is ready well before the mind believes it.',
+    cues: ladderCues([
+      'Ten minutes at a time today. Add these two together and you are within touching distance of a 5K.',
+      'Long and easy. If you are wondering whether to slow down, slow down.',
+      'Your body is ready for this before your mind believes it. That gap is normal, and it closes.',
+      'One more of these. You already know you can do it — you just did.',
+    ]),
+  }),
+  {
+    id: 'run-5k',
+    title: 'Your 5K',
+    tagline: 'The day it all adds up. Continuous, easy, yours.',
+    em: '🏅',
+    activity: 'run',
+    minutes: 35,
+    level: 'The finish line',
+    color: 'gold',
+    science: 'Eight weeks of walk-run progression is the standard, evidence-backed route from non-runner to 5K — the same structure physios use, because full recoveries let connective tissue keep pace with the heart.',
+    segments: [
+      { at: 0, label: 'Warm-up walk' },
+      { at: 300, label: 'Your 5K' },
+      { at: 1800, label: 'Cool-down walk' },
+    ],
+    cues: [
+      { at: 0, kind: 'welcome', say: 'Today is the day. Five minutes of walking first — and while you walk, remember where this started: one single minute of running, and you were not sure about that either.' },
+      { at: 120, kind: 'form', say: 'No pressure on time today. The only goal is to keep moving until it is done.' },
+      { at: 240, kind: 'science', say: 'Everything you need for this you already built. Eight weeks of small rungs — that is the entire method, and it works.' },
+      { at: 290, kind: 'interval', say: 'Ten seconds. Start absurdly easy. You have plenty of time to feel good later.' },
+      { at: 300, kind: 'interval', say: 'And run. This is your 5K.' },
+      { at: 480, kind: 'form', say: 'Settle. Shoulders down, hands soft, breathing you could hold a conversation through.' },
+      { at: 780, kind: 'motivate', say: 'You are moving beautifully. Nothing to prove, just keep the rhythm.' },
+      { at: 1080, kind: 'milestone', say: 'You are past halfway. From here it is just repeating what you already know how to do.' },
+      { at: 1380, kind: 'motivate', say: 'This is the part you will be proud of. Stay easy — walking a little is completely allowed and changes nothing.' },
+      { at: 1620, kind: 'motivate', say: 'Final stretch. Whatever pace, you are finishing this.' },
+      { at: 1800, kind: 'interval', say: 'Ease down to a walk whenever you are ready. That is your 5K.' },
+      { at: 1880, kind: 'close', say: 'You are a person who runs 5Ks now. That is not a phrase you would have used about yourself two months ago. Walk it out, and be genuinely proud.' },
+    ],
+  },
+  {
+    id: 'strong-build',
+    title: 'Strong Build',
+    tagline: '20 minutes. Same moves, more of you in them.',
+    em: '🏋️',
+    activity: 'strength',
+    minutes: 20,
+    level: 'After a few Strong Starts',
+    color: 'accent',
+    science: 'Progressive overload is the whole principle of strength: adding reps, range or slowness over time is what keeps muscle adapting, and 30–60 min/week of strengthening is associated with 10–17% lower all-cause mortality.',
+    segments: [
+      { at: 0, label: 'Warm-up' },
+      { at: 120, label: 'Round 1' },
+      { at: 420, label: 'Round 2' },
+      { at: 720, label: 'Round 3' },
+      { at: 1020, label: 'Cool-down' },
+    ],
+    cues: [
+      { at: 0, kind: 'interval', say: 'Two minutes to warm up — march, roll the shoulders, swing the arms, circle the hips. Wake everything up.' },
+      { at: 120, kind: 'interval', say: 'Round one. Twelve squats — and slow the lowering down to three full seconds. Slow is the progression today.' },
+      { at: 200, kind: 'science', say: 'That slow lowering is called eccentric work, and it is one of the most reliable ways to build strength without adding any weight at all.' },
+      { at: 260, kind: 'interval', say: 'Push-ups next — twelve, from a lower surface than last time if you can. Chest proud, body one line.' },
+      { at: 340, kind: 'interval', say: 'Finish the round: forty-five seconds of glute bridges, squeezing hard at the top.' },
+      { at: 420, kind: 'interval', say: 'Round two. Squats again — same three-second lowering. Your legs know this now.' },
+      { at: 520, kind: 'form', say: 'Knees tracking over your toes, weight through the whole foot. Form before everything.' },
+      { at: 580, kind: 'interval', say: 'Push-ups. Twelve more, best quality you have got.' },
+      { at: 660, kind: 'interval', say: 'Bridges. Forty-five seconds. Squeeze like you mean it.' },
+      { at: 720, kind: 'interval', say: 'Round three — the one that counts. Squats first.' },
+      { at: 820, kind: 'science', say: 'Half an hour of this a week is associated with a meaningfully lower risk of dying early, independent of any cardio you do. Half an hour.' },
+      { at: 880, kind: 'interval', say: 'Last set of push-ups. However many are honest — quality over count.' },
+      { at: 950, kind: 'motivate', say: 'Final bridges. Finish strong, finish proud.' },
+      { at: 1020, kind: 'interval', say: 'Shake it out. Stretch whatever asks for it — hips, chest, the fronts of the thighs.' },
+      { at: 1140, kind: 'close', say: 'Done. Stronger than the last one, which was stronger than the one before. That is the whole game.' },
+    ],
+  },
+);
+
 export const sessionById = id => sessions.find(s => s.id === id);

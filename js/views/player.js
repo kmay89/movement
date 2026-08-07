@@ -372,9 +372,14 @@ export function render(el, params) {
         sessionId: guided ? session.id : null,
         mood: b.dataset.mood,
       });
+      // Any finished session counts toward the current program week — you
+      // never have to open the program to make progress in it.
+      const credit = store.creditProgram();
       close('#/today');
       if (!maybeCelebrateGoal(weekBefore)) {
-        toast(`Logged ${minutes} min. See you next time. 💚`);
+        toast(credit
+          ? `Logged ${minutes} min — ${credit.done} down this program week. 💚`
+          : `Logged ${minutes} min. See you next time. 💚`);
       }
     });
   }

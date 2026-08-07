@@ -9,6 +9,7 @@ const defaults = () => ({
   thirst: {},       // { 'YYYY-MM-DD': { level: 0-3, urine: 0-2|null, ts } }
   plan: [],         // { id, days: [0-6], time: 'HH:MM', activity, minutes }
   circle: null,     // { name, intention, members: [names] }
+  program: null,    // { id, startedAt, week, done: { '<week>': count } }
   readArticles: [],
   settings: { voice: true, weeklyGoalMin: 150 },
 });
@@ -90,6 +91,39 @@ export const store = {
 
   movementDaysTotal() {
     return new Set(state.log.filter(e => e.minutes >= 5).map(e => e.date)).size;
+  },
+
+  // ---- programs ----
+  // Progress is counted per week, not per day, so you choose which days —
+  // and a quiet week never breaks anything.
+  startProgram(id) {
+    this.update(s => { s.program = { id, startedAt: Date.now(), week: 0, done: {} }; });
+  },
+
+  leaveProgram() {
+    this.update(s => { s.program = null; });
+  },
+
+  programDone(week = state.program?.week ?? 0) {
+    return state.program?.done?.[week] || 0;
+  },
+
+  // Called when a session finishes while a program is active.
+  creditProgram() {
+    if (!state.program) return null;
+    const w = state.program.week;
+    this.update(s => { s.program.done[w] = (s.program.done[w] || 0) + 1; });
+    return { week: w, done: this.programDone(w) };
+  },
+
+  advanceProgramWeek() {
+    if (!state.program) return;
+    this.update(s => { s.program.week += 1; });
+  },
+
+  repeatProgramWeek() {
+    if (!state.program) return;
+    this.update(s => { s.program.done[s.program.week] = 0; });
   },
 
   // ---- hydration ----

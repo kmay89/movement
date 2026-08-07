@@ -23,7 +23,7 @@ No shame. No ads. Everything counts.
 | Tab | What it does |
 | --- | --- |
 | **Today** | Time-aware session suggestion, gentle streak, weekly minutes vs. the WHO 150, water tracking, a daily research spark, today's plan |
-| **Move** | 12 guided sessions (Nike-Run-Club-style coached audio via on-device speech) + freestyle timer for any activity |
+| **Move** | 18 guided sessions (Nike-Run-Club-style coached audio via on-device speech), 4 multi-week **Programs**, + freestyle timer for any activity |
 | **Learn** | 15 short research articles with full citations, organized by topic |
 | **Together** | Non-competitive circles: shared intentions, invites, moved-together tracking |
 | **Plan** | Weekly if-then intentions, calendar export (.ics), reminder notifications |
@@ -54,6 +54,22 @@ night is deep blue with stars and a moon.
 
 All of it respects `prefers-reduced-motion` by composing a still frame instead
 of animating, and it tears down cleanly when you leave the screen.
+
+## Programs — the thing that pulls you into next week
+
+Four multi-week arcs, each built on the guided sessions: **Your First 5K**
+(8 weeks, an eight-rung walk-run ladder from one minute to 5K), **Walk
+Yourself Well** (4 weeks to the WHO's 150 min/week), **Strong in Six Weeks**
+(2×/week, the strengthening guideline most people never hear), and **30 Days
+of Movement Snacks**.
+
+They are **flexible by design**, the way the plans people actually finish are:
+a week asks for a *number* of sessions, not specific days. Finishing any
+session anywhere in the app counts toward the current week, the program's next
+session becomes your Today suggestion, and a quiet week simply waits — you can
+repeat any week as often as you like, and the app calls that building, not
+failing. A median 70% of people abandon a health app within 100 days, with
+rigid schedules and shame among the biggest reasons; this is our answer.
 
 ## Guided sessions
 

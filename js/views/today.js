@@ -4,11 +4,27 @@
 import { store } from '../store.js';
 import { esc, toast, greeting, cheer, logCheers, maybeCelebrateGoal } from '../ui.js';
 import { sessions, sessionById } from '../data/sessions.js';
+import { programById } from '../data/programs.js';
 import { sparkForToday } from '../data/sparks.js';
 import { activities, byId } from '../data/activities.js';
 import { zenField, paletteForHour } from '../visuals.js';
 
 let heroField = null; // torn down when Today is re-rendered or left
+
+// If you're following a program, the program decides — that's the point of
+// joining one. Otherwise we suggest by time of day.
+function programNext() {
+  const prog = store.get().program;
+  if (!prog) return null;
+  const p = programById(prog.id);
+  if (!p) return null;
+  const wi = Math.min(prog.week, p.weeks.length - 1);
+  const week = p.weeks[wi];
+  const done = prog.done[wi] || 0;
+  if (done >= week.sessions.length) return null; // week complete — rest is earned
+  const s = sessionById(week.sessions[done]);
+  return s ? { session: s, program: p, week: wi, done, need: week.sessions.length } : null;
+}
 
 function suggestSession() {
   const h = new Date().getHours();
@@ -63,7 +79,8 @@ export function render(el) {
   const streak = store.streak();
   const hydration = store.thirst();
   const spark = sparkForToday();
-  const suggestion = suggestSession();
+  const next = programNext();
+  const suggestion = next ? next.session : suggestSession();
   const todaysPlan = s.plan.filter(p => p.days.includes(weekdayIndex()));
   const name = s.profile.name ? `, ${esc(s.profile.name)}` : '';
 
@@ -76,7 +93,9 @@ export function render(el) {
       <canvas class="hero-zen" id="hero-zen" aria-hidden="true"></canvas>
       <span class="hero-sun" aria-hidden="true"></span>
       <div class="hero-content">
-        <div class="eyebrow">${esc(greeting())}${name}</div>
+        <div class="eyebrow">${next
+          ? `${next.program.em} ${esc(next.program.title)} · week ${next.week + 1} · ${next.done} of ${next.need}`
+          : `${esc(greeting())}${name}`}</div>
         <h1>${todayMin >= 5 ? esc(cheer(movedHeadlines(todayMin))) : esc(cheer(restHeadlines))}</h1>
         <a class="btn" href="#/session/${suggestion.id}">
           <span>${suggestion.em}</span> ${esc(suggestion.title)} · ${suggestion.minutes} min
