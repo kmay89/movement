@@ -2,7 +2,7 @@
 // shared, gentle intention. No leaderboards, ever.
 
 import { store } from '../store.js';
-import { esc, toast } from '../ui.js';
+import { esc, toast, shareApp } from '../ui.js';
 
 export function render(el) {
   const s = store.get();
@@ -85,18 +85,11 @@ function renderCircle(el, s) {
     <p class="tiny center" style="padding:0 12px">Circles live on your device for now — synced circles with shared check-ins are on the roadmap.</p>
   `;
 
-  el.querySelector('#c-invite').addEventListener('click', async () => {
-    const text = `Come move with me 🌱 I'm in a little movement circle called “${s.circle.name}” — our only rule: “${s.circle.intention}”. No competition, just company. Join me?`;
-    if (navigator.share) {
-      try { await navigator.share({ text }); } catch (e) { /* user cancelled */ }
-    } else {
-      try {
-        await navigator.clipboard.writeText(text);
-        toast('Invite copied — paste it anywhere.');
-      } catch (e) {
-        toast(text);
-      }
-    }
+  el.querySelector('#c-invite').addEventListener('click', () => {
+    shareApp({
+      title: `Join ${s.circle.name} on Movement`,
+      text: `Come move with me 🌱 I'm in a little movement circle called “${s.circle.name}” — our only rule: “${s.circle.intention}”. No competition, just company. Join me?`,
+    });
   });
 
   el.querySelector('#c-addbtn').addEventListener('click', () => {

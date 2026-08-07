@@ -1,7 +1,7 @@
 // You — gentle progress, your why, and settings. A mirror, not a report card.
 
 import { store } from '../store.js';
-import { esc, toast, DAY_NAMES } from '../ui.js';
+import { esc, toast, DAY_NAMES, shareApp } from '../ui.js';
 import { byId } from '../data/activities.js';
 import { spotify } from '../music.js';
 
@@ -74,6 +74,17 @@ export function render(el) {
       `}
     </div>
 
+    <a class="card card-link flat" href="#/welcome">
+      <b>🌱 Why Movement exists</b>
+      <p class="muted mt8">What we built, what makes it different, and what to honestly expect. Worth a re-read on a hard week.</p>
+    </a>
+
+    <div class="card flat">
+      <b>💌 Share Movement</b>
+      <p class="muted mt8">Know someone who’d move more if it felt less like homework? One walk with a friend is two medicines.</p>
+      <button class="btn small mt12" id="u-share">Send it to someone</button>
+    </div>
+
     <div class="card flat">
       <b>📲 Put Movement on your phone</b>
       <p class="muted mt8">On iPhone: open this app in Safari → Share → <b>Add to Home Screen</b>. It installs like a native app — full screen, offline, with notifications. Android: Chrome will offer “Install app”.</p>
@@ -116,6 +127,12 @@ export function render(el) {
     spotify.disconnect();
     toast('Spotify disconnected.');
     render(el);
+  });
+
+  el.querySelector('#u-share').addEventListener('click', () => {
+    shareApp({
+      text: 'Found a movement app that isn’t trying to make you feel bad 🌱 Guided sessions, real research, no leaderboards, and everything stays on your own phone. Free.',
+    });
   });
 
   el.querySelector('#u-export').addEventListener('click', () => {

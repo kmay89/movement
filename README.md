@@ -29,6 +29,32 @@ No shame. No ads. Everything counts.
 | **Plan** | Weekly if-then intentions, calendar export (.ics), reminder notifications |
 | **You** | 10-week heatmap, history, your “why,” settings, data export |
 
+## First run: why this exists
+
+A single scannable screen on first launch (and always available from
+You → *Why Movement exists*) covering the why and the four differences:
+**it stays on your phone** — no account, no sign-up, no tracking, no ads,
+nothing sold, everything in this device's own storage and exportable or
+erasable in one tap; **rooted in research** with every claim citing its
+source; **company, not competition**; and **every minute genuinely counts**.
+
+It closes with honest timelines — mood and sleep in *days*, easier stairs in
+*weeks*, strength and body composition in *months* — because knowing the real
+schedule is the best protection against quitting in week three. One screen,
+one button: onboarding friction is itself a quit driver.
+
+## Sharing
+
+Shared links render a proper preview card in iMessage, Slack, WhatsApp and
+Twitter: `og-image.jpg` (1200×630, ~74KB) drawn in the app's own language —
+dawn sky, ripples, an open ensō. Edit `scripts/og-card.html` and regenerate
+with `node scripts/make_og.js` (needs Playwright; the PNG output is committed
+so the app itself stays dependency-free). The Open Graph tags use absolute
+URLs pointing at the production host — change `og:url` and `og:image` together
+if you deploy elsewhere. In-app share buttons (Together invites, You →
+*Share Movement*) send the URL via the Web Share API so the card actually
+appears in the message.
+
 ## The look: stillness with something alive inside it
 
 Movement is built to feel calm and to keep you company — never busy, never

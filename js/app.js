@@ -8,14 +8,17 @@ import * as learn from './views/learn.js';
 import * as together from './views/together.js';
 import * as plan from './views/plan.js';
 import * as programs from './views/programs.js';
+import * as welcome from './views/welcome.js';
 import * as you from './views/you.js';
 import { spotify } from './music.js';
 import { toast } from './ui.js';
+import { store } from './store.js';
 
 const view = document.getElementById('view');
 let cleanup = null;
 
 const routes = [
+  { match: /^#\/welcome$/, tab: 'today', bare: true, render: el => welcome.render(el) },
   { match: /^#\/today$/, tab: 'today', render: el => today.render(el) }, // returns a cleanup
   { match: /^#\/move$/, tab: 'move', render: el => move.render(el) },
   { match: /^#\/programs$/, tab: 'move', render: el => programs.render(el) },
@@ -48,6 +51,10 @@ function route() {
 }
 
 window.addEventListener('hashchange', route);
+
+// First launch: say hello and explain ourselves before anything else.
+if (!store.get().settings.seenWelcome && !location.hash) location.hash = '#/welcome';
+
 route();
 
 // If we just came back from Spotify's consent screen, finish connecting.
