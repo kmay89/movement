@@ -13,6 +13,7 @@ import * as you from './views/you.js';
 import { spotify } from './music.js';
 import { toast } from './ui.js';
 import { store } from './store.js';
+import { initUpdates, maybeShowWhatsNew } from './update.js';
 
 const view = document.getElementById('view');
 let cleanup = null;
@@ -70,3 +71,7 @@ if (location.search.includes('code=') || location.search.includes('error=')) {
 
 // Reminder tick: check planned times once a minute while the app is open.
 setInterval(() => plan.checkReminders(), 60 * 1000);
+
+// Keep the app current on its own, and show the log after it does.
+initUpdates();
+maybeShowWhatsNew();
