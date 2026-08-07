@@ -33,6 +33,21 @@ const restHeadlines = [
   'No pressure here. Just an open door.',
 ];
 
+// Hydration, done the way the evidence actually supports: notice the signals
+// instead of counting cups toward a number nobody can justify.
+const THIRST = [
+  { em: '😌', label: 'Not thirsty', say: 'Nicely topped up. Thirst is a genuinely good guide for most healthy adults — you can trust it.' },
+  { em: '🙂', label: 'A little', say: 'Have a glass when it’s convenient. No need to chase a target.' },
+  { em: '😐', label: 'Thirsty', say: 'Time for water — thirst means your body has already decided.' },
+  { em: '😵', label: 'Parched', say: 'Drink now, and keep something nearby. If you’re often this dry, it’s worth a mention to your clinician.' },
+];
+
+const URINE = [
+  { color: '#f5e9a8', label: 'Pale', say: 'Pale straw is the target. This is what well-hydrated looks like.' },
+  { color: '#e8c95a', label: 'Yellow', say: 'Perfectly normal — a glass in the next while wouldn’t hurt.' },
+  { color: '#b4791b', label: 'Dark', say: 'Dark means catch up on fluids. It’s the most reliable at-home check there is.' },
+];
+
 const movedHeadlines = m => [
   `You’ve moved ${m} minutes today. Lovely.`,
   `${m} minutes today — your heart noticed.`,
@@ -46,7 +61,7 @@ export function render(el) {
   const weekMin = store.minutesThisWeek();
   const goal = s.settings.weeklyGoalMin || 150;
   const streak = store.streak();
-  const water = store.water();
+  const hydration = store.thirst();
   const spark = sparkForToday();
   const suggestion = suggestSession();
   const todaysPlan = s.plan.filter(p => p.days.includes(weekdayIndex()));
@@ -90,13 +105,28 @@ export function render(el) {
 
     <div class="card">
       <div class="row between">
-        <b>Water 💧</b>
-        <span class="tiny">${water} of 8 cups · thirst & pale urine are the real guides</span>
+        <b>Thirst check 💧</b>
+        <span class="tiny">the signal that actually works</span>
       </div>
-      <div class="water-cups" id="cups">
-        ${Array.from({ length: 8 }, (_, i) =>
-          `<button class="cup ${i < water ? 'full' : ''}" data-cup="${i + 1}" aria-label="cup ${i + 1}"></button>`).join('')}
+      <div class="thirst-row" id="thirst">
+        ${THIRST.map((t, i) =>
+          `<button class="thirst-btn ${hydration?.level === i ? 'on' : ''}" data-level="${i}">
+            <span class="th-em">${t.em}</span><span class="th-label">${esc(t.label)}</span>
+          </button>`).join('')}
       </div>
+      ${hydration?.level != null ? `<p class="muted mt12">${esc(THIRST[hydration.level].say)}</p>` : ''}
+
+      <div class="urine-check mt12">
+        <div class="tiny" style="margin-bottom:7px">And the honest one — urine color today:</div>
+        <div class="urine-row" id="urine">
+          ${URINE.map((u, i) =>
+            `<button class="urine-btn ${hydration?.urine === i ? 'on' : ''}" data-urine="${i}"
+              style="--swatch:${u.color}" aria-label="${esc(u.label)}"><span></span>${esc(u.label)}</button>`).join('')}
+        </div>
+        ${hydration?.urine != null ? `<p class="muted mt8">${esc(URINE[hydration.urine].say)}</p>` : ''}
+      </div>
+
+      <p class="tiny mt12">Thirst is a reliable guide for most healthy adults at rest. It lags in three cases worth knowing: <b>over ~65</b>, <b>in heat</b>, and during <b>long or hard efforts</b> — then drink on a schedule rather than waiting.</p>
     </div>
 
     <h2 class="section-title">Today’s plan</h2>
@@ -115,12 +145,20 @@ export function render(el) {
   heroField?.stop();
   heroField = zenField(el.querySelector('#hero-zen'), { palette: sky, density: 0.5 });
 
-  // Water taps
-  el.querySelector('#cups').addEventListener('click', e => {
-    const btn = e.target.closest('[data-cup]');
+  // Thirst + urine check-ins (tap again to clear)
+  el.querySelector('#thirst').addEventListener('click', e => {
+    const btn = e.target.closest('[data-level]');
     if (!btn) return;
-    const n = Number(btn.dataset.cup);
-    store.setWater(n === store.water() ? n - 1 : n);
+    const n = Number(btn.dataset.level);
+    store.setThirst({ level: hydration?.level === n ? null : n });
+    render(el);
+  });
+
+  el.querySelector('#urine').addEventListener('click', e => {
+    const btn = e.target.closest('[data-urine]');
+    if (!btn) return;
+    const n = Number(btn.dataset.urine);
+    store.setThirst({ urine: hydration?.urine === n ? null : n });
     render(el);
   });
 

@@ -6,7 +6,7 @@ const KEY = 'movement.v1';
 const defaults = () => ({
   profile: { name: '', why: '', createdAt: new Date().toISOString() },
   log: [],          // { id, date: 'YYYY-MM-DD', minutes, activity, sessionId?, mood?, withOthers? }
-  water: {},        // { 'YYYY-MM-DD': cups }
+  thirst: {},       // { 'YYYY-MM-DD': { level: 0-3, urine: 0-2|null, ts } }
   plan: [],         // { id, days: [0-6], time: 'HH:MM', activity, minutes }
   circle: null,     // { name, intention, members: [names] }
   readArticles: [],
@@ -92,13 +92,17 @@ export const store = {
     return new Set(state.log.filter(e => e.minutes >= 5).map(e => e.date)).size;
   },
 
-  // ---- water ----
-  water(dateKey = this.todayKey()) {
-    return state.water[dateKey] || 0;
+  // ---- hydration ----
+  // We track the signals the evidence actually supports — thirst and urine
+  // color — rather than counting cups toward an invented daily number.
+  thirst(dateKey = this.todayKey()) {
+    return state.thirst[dateKey] || null;
   },
 
-  setWater(cups) {
+  setThirst(patch) {
     const k = this.todayKey();
-    this.update(s => { s.water[k] = Math.max(0, cups); });
+    this.update(s => {
+      s.thirst[k] = { level: null, urine: null, ...(s.thirst[k] || {}), ...patch, ts: Date.now() };
+    });
   },
 };

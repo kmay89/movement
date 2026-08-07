@@ -363,22 +363,56 @@ h2.section-title {
 .meter { height: 8px; border-radius: 999px; background: var(--bg-sunken); overflow: hidden; }
 .meter > i { display: block; height: 100%; border-radius: 999px; background: var(--brand); transition: width 0.5s ease; }
 
-/* ---------- water tracker ---------- */
+/* ---------- thirst check ---------- */
 
-.water-cups { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+.thirst-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: 12px; }
 
-.cup {
-  width: 34px;
-  height: 40px;
-  border-radius: 7px 7px 11px 11px;
-  border: 2px solid var(--sky);
-  background: transparent;
-  position: relative;
-  transition: background 0.2s ease;
+.thirst-btn {
+  padding: 11px 4px 9px;
+  border-radius: 14px;
+  background: var(--bg-sunken);
+  border: 1.5px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: transform 0.12s ease;
 }
 
-.cup.full { background: linear-gradient(to top, var(--sky) 85%, transparent 85%); }
-.cup:active { transform: scale(0.92); }
+.thirst-btn .th-em { font-size: 22px; line-height: 1; }
+.thirst-btn .th-label { font-size: 11.5px; font-weight: 700; color: var(--ink-soft); }
+.thirst-btn.on { background: var(--sky-soft); border-color: var(--sky); }
+.thirst-btn.on .th-label { color: var(--sky); }
+.thirst-btn:active { transform: scale(0.95); }
+
+.urine-check { border-top: 1px solid var(--line); padding-top: 12px; }
+.urine-row { display: flex; gap: 7px; }
+
+.urine-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 6px;
+  border-radius: 12px;
+  background: var(--bg-sunken);
+  border: 1.5px solid transparent;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.urine-btn span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.urine-btn.on { border-color: var(--sky); background: var(--sky-soft); color: var(--sky); }
+.urine-btn:active { transform: scale(0.96); }
 
 /* ---------- session / activity cards ---------- */
 

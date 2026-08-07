@@ -159,13 +159,15 @@ export const articles = [
 <p>The classic “8 glasses” is folklore, but the real guidance isn’t far off. The U.S. National Academies put adequate total water intake around <b>3.7 liters a day for men and 2.7 for women</b> — with a crucial asterisk: that includes the ~20% that arrives in food, and coffee and tea count toward it too.</p>
 <h3>The honest signals</h3>
 <ul>
-<li><b>Thirst works.</b> For everyday life, drinking when thirsty keeps most healthy people in balance.</li>
+<li><b>Thirst works.</b> The National Academies report says it plainly: the vast majority of healthy people meet their needs by letting thirst be the guide. That's why this app asks how thirsty you are instead of counting cups.</li>
 <li><b>Urine color</b> is the low-tech lab test: pale straw = fine; apple juice = drink up.</li>
 <li>Even mild dehydration (1–2% of body weight) measurably dents mood, focus, and the way exercise feels — moving feels harder than it should.</li>
 </ul>
+<h3>When thirst lags</h3>
+<p>Three situations where waiting for thirst isn't enough, and drinking on a schedule wins: <b>older adults</b> (the thirst signal genuinely blunts with age), <b>heat</b>, and <b>long or hard efforts</b> where sweat outruns the signal.</p>
 <h3>Moving and sweating</h3>
 <p>For sessions under an hour, water is all you need — drink to thirst before and after. Going long or sweating hard? Add fluids with electrolytes. And a practical trick that beats willpower: put water where your day already happens. A full glass by the kettle, a bottle by your keys.</p>`,
-    tryThis: 'Tap the water cups on your Today screen after each glass. Aim for pale-straw urine, not a heroic number.',
+    tryThis: 'Use the thirst check on your Today screen once a day — and glance at urine color. Those two signals beat counting cups toward a number nobody can justify.',
     refs: [
       'Institute of Medicine (US). Dietary Reference Intakes for Water, Potassium, Sodium, Chloride, and Sulfate. National Academies Press, 2005.',
       'Armstrong LE et al. Mild dehydration affects mood in healthy young women. J Nutr 2012;142:382–88.',
