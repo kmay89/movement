@@ -1,7 +1,7 @@
 // Movement service worker — offline-first so your coach works on any trail,
 // in any basement gym, on any airplane.
 
-const VERSION = 'movement-v1.6.0';
+const VERSION = 'movement-v1.7.0';
 
 const CORE = [
   './',
@@ -26,11 +26,13 @@ const CORE = [
   './js/views/together.js',
   './js/views/plan.js',
   './js/views/programs.js',
+  './js/views/welcome.js',
   './js/views/you.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
+  './og-image.jpg',
 ];
 
 self.addEventListener('install', e => {

@@ -93,6 +93,27 @@ export function maybeCelebrateGoal(weekMinBefore) {
   return false;
 }
 
+// Share the app itself. Sending the URL (not just text) is what makes
+// iMessage, WhatsApp and Slack render the link-preview card.
+export async function shareApp({ title = 'Movement', text }) {
+  const url = location.origin + location.pathname;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+      return true;
+    } catch (e) {
+      if (e && e.name === 'AbortError') return false; // user changed their mind
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    toast('Copied — paste it anywhere.');
+  } catch (e) {
+    toast(url);
+  }
+  return true;
+}
+
 // Soft tints for light-background cards (the Learn library). Session cards
 // use the full palettes from visuals.js instead.
 export const softBg = {
