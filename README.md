@@ -23,11 +23,53 @@ No shame. No ads. Everything counts.
 | Tab | What it does |
 | --- | --- |
 | **Today** | Time-aware session suggestion, gentle streak, weekly minutes vs. the WHO 150, water tracking, a daily research spark, today's plan |
-| **Move** | 12 guided sessions (Nike-Run-Club-style coached audio via on-device speech) + freestyle timer for any activity |
+| **Move** | 18 guided sessions (Nike-Run-Club-style coached audio via on-device speech), 4 multi-week **Programs**, + freestyle timer for any activity |
 | **Learn** | 15 short research articles with full citations, organized by topic |
 | **Together** | Non-competitive circles: shared intentions, invites, moved-together tracking |
 | **Plan** | Weekly if-then intentions, calendar export (.ics), reminder notifications |
 | **You** | 10-week heatmap, history, your “why,” settings, data export |
+
+## The look: stillness with something alive inside it
+
+Movement is built to feel calm and to keep you company — never busy, never
+shouty. Three ideas carry it (all in `js/visuals.js`, all pure canvas, no
+libraries):
+
+- **Ripples on water.** A slow field of concentric rings drifts behind every
+  session. Every time the coach speaks, a ripple is born — so the voice has a
+  visible echo, and the screen answers you.
+- **The ensō.** Your progress is drawn as a Japanese ensō: one brush stroke,
+  weighted heavy where it lands and tapering as it lifts, wet ink blooming at
+  the leading edge — and deliberately never quite closed, because neither is a
+  practice. The clock sits inside it.
+- **A breath pacer.** When the coach gives a breath cue, an orb rises and
+  paces 4 seconds in, 6 seconds out — the ratio that actually shifts the
+  nervous system — so you follow it instead of trying to remember it.
+
+Every session also has its **own color world** — sea, ember, amber, ocean or
+twilight — that tints its background, ensō and ripples, and previews as a
+thumbnail in the Move list. **Today wears the hour you're in**: dawn climbs
+from indigo through rose to amber, day is sea-green, dusk burns coral, and
+night is deep blue with stars and a moon.
+
+All of it respects `prefers-reduced-motion` by composing a still frame instead
+of animating, and it tears down cleanly when you leave the screen.
+
+## Programs — the thing that pulls you into next week
+
+Four multi-week arcs, each built on the guided sessions: **Your First 5K**
+(8 weeks, an eight-rung walk-run ladder from one minute to 5K), **Walk
+Yourself Well** (4 weeks to the WHO's 150 min/week), **Strong in Six Weeks**
+(2×/week, the strengthening guideline most people never hear), and **30 Days
+of Movement Snacks**.
+
+They are **flexible by design**, the way the plans people actually finish are:
+a week asks for a *number* of sessions, not specific days. Finishing any
+session anywhere in the app counts toward the current week, the program's next
+session becomes your Today suggestion, and a quiet week simply waits — you can
+repeat any week as often as you like, and the app calls that building, not
+failing. A median 70% of people abandon a health app within 100 days, with
+rigid schedules and shame among the biggest reasons; this is our answer.
 
 ## Guided sessions
 

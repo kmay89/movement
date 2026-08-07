@@ -1,7 +1,7 @@
 // Movement service worker — offline-first so your coach works on any trail,
 // in any basement gym, on any airplane.
 
-const VERSION = 'movement-v1.3.0';
+const VERSION = 'movement-v1.6.0';
 
 const CORE = [
   './',
@@ -12,17 +12,20 @@ const CORE = [
   './js/store.js',
   './js/audio.js',
   './js/music.js',
+  './js/visuals.js',
   './js/ui.js',
   './js/data/activities.js',
   './js/data/sessions.js',
   './js/data/learn.js',
   './js/data/sparks.js',
+  './js/data/programs.js',
   './js/views/today.js',
   './js/views/move.js',
   './js/views/player.js',
   './js/views/learn.js',
   './js/views/together.js',
   './js/views/plan.js',
+  './js/views/programs.js',
   './js/views/you.js',
   './icons/icon-192.png',
   './icons/icon-512.png',

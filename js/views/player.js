@@ -8,6 +8,7 @@ import { esc, toast, fmtClock, confetti, maybeCelebrateGoal } from '../ui.js';
 import { sessionById, cueKinds } from '../data/sessions.js';
 import { byId as activityById } from '../data/activities.js';
 import { spotify } from '../music.js';
+import { zenField, drawEnso, breathOrb, paletteFor } from '../visuals.js';
 
 const freestyleCues = [
   'Still with you. However you’re moving, it counts.',
@@ -38,51 +39,72 @@ export function render(el, params) {
 
   const elapsed = () => accumulated + (running ? (Date.now() - lastResume) / 1000 : 0);
 
+  const pal = paletteFor(guided ? session.color : 'brand');
+
   el.innerHTML = `
-    <div class="player" id="player">
-      <div class="player-top">
-        <button class="player-close" id="p-close" aria-label="Close">✕</button>
-        <span style="font-weight:700; opacity:.85">${guided ? esc(session.title) : `Free ${esc(activity.name)}`}</span>
-        <span style="width:40px"></span>
-      </div>
-
-      <div class="player-hero" id="p-body">
-        <div class="em">${guided ? session.em : activity.em}</div>
-        <h1>${guided ? esc(session.title) : esc(activity.name)}</h1>
-        <p class="ph-sub">${guided ? esc(session.tagline) : esc(activity.why)}</p>
-        ${guided ? `<p class="ph-sub" style="margin-top:14px; font-size:13px; opacity:.7">🔬 ${esc(session.science)}</p>` : ''}
-        <div class="player-clock" id="p-clock" hidden>${guided ? fmtClock(totalSec) : '0:00'}</div>
-        <div class="player-segment" id="p-seg" hidden></div>
-        <div class="player-cue" id="p-cue" hidden></div>
-        ${guided ? `<div class="cue-legend" id="p-legend"></div>` : ''}
-      </div>
-
-      ${guided ? `
-      <div class="timeline" id="p-timeline">
-        <div class="tl-track">
-          <i class="tl-fill" id="p-meter"></i>
-          <div class="tl-marks" id="p-marks"></div>
+    <div class="player" id="player" style="--deep:${pal.deep}; --mid:${pal.mid}; --lift:${pal.lift}; --ink:${pal.ink}">
+      <canvas class="zen-canvas" id="p-zen" aria-hidden="true"></canvas>
+      <div class="player-inner">
+        <div class="player-top">
+          <button class="player-close" id="p-close" aria-label="Close">✕</button>
+          <span style="font-weight:700; opacity:.85">${guided ? esc(session.title) : `Free ${esc(activity.name)}`}</span>
+          <span style="width:40px"></span>
         </div>
-        <div class="tl-next" id="p-next"></div>
-      </div>` : `
-      <div class="timeline"><div class="tl-next" id="p-next"></div></div>`}
-      <div class="music-bar" id="m-bar"></div>
-      <div class="player-controls">
-        <button class="pbtn main pulse" id="p-main">Start</button>
-        <button class="pbtn" id="p-end" hidden>End</button>
+
+        <div class="player-hero" id="p-body">
+          <div class="em">${guided ? session.em : activity.em}</div>
+          <h1>${guided ? esc(session.title) : esc(activity.name)}</h1>
+          <p class="ph-sub">${guided ? esc(session.tagline) : esc(activity.why)}</p>
+          ${guided ? `<p class="ph-sub" style="margin-top:14px; font-size:13px; opacity:.7">🔬 ${esc(session.science)}</p>` : ''}
+
+          <div class="enso-wrap" id="p-enso-wrap" hidden>
+            <canvas class="enso" id="p-enso" aria-hidden="true"></canvas>
+            <div class="enso-face">
+              <div class="player-clock" id="p-clock">${guided ? fmtClock(totalSec) : '0:00'}</div>
+              <div class="player-segment" id="p-seg"></div>
+            </div>
+          </div>
+
+          <div class="breath-orb" id="p-orb" hidden>
+            <div class="bo-disc"></div>
+            <div class="bo-label"></div>
+          </div>
+
+          <div class="player-cue" id="p-cue" hidden></div>
+          ${guided ? `<div class="cue-legend" id="p-legend"></div>` : ''}
+        </div>
+
+        ${guided ? `
+        <div class="timeline" id="p-timeline">
+          <div class="tl-track">
+            <i class="tl-fill" id="p-meter"></i>
+            <div class="tl-marks" id="p-marks"></div>
+          </div>
+          <div class="tl-next" id="p-next"></div>
+        </div>` : `
+        <div class="timeline"><div class="tl-next" id="p-next"></div></div>`}
+        <div class="music-bar" id="m-bar"></div>
+        <div class="player-controls">
+          <button class="pbtn main pulse" id="p-main">Start</button>
+          <button class="pbtn" id="p-end" hidden>End</button>
+        </div>
+        <p class="center tiny" style="opacity:.65; margin-top:12px" id="p-hint">
+          ${store.get().settings.voice
+            ? 'Heads up: your coach borrows your phone’s built-in voice — a little robotic, we know 🤖 Think friendly GPS, not drill sergeant. Prefer quiet? Text-only lives in You → Settings.'
+            : 'Voice is off — cues appear as text. Turn voice on in You → Settings.'}
+        </p>
       </div>
-      <p class="center tiny" style="opacity:.65; margin-top:12px" id="p-hint">
-        ${store.get().settings.voice
-          ? 'Heads up: your coach borrows your phone’s built-in voice — a little robotic, we know 🤖 Think friendly GPS, not drill sergeant. Prefer quiet? Text-only lives in You → Settings.'
-          : 'Voice is off — cues appear as text. Turn voice on in You → Settings.'}
-      </p>
     </div>
   `;
+
+  // The living backdrop. Ripples are spawned by the coach's voice below.
+  const zen = zenField(el.querySelector('#p-zen'), { palette: pal });
+  let orb = null;
 
   const $ = id => el.querySelector(id);
   const clockEl = $('#p-clock'), segEl = $('#p-seg'), cueEl = $('#p-cue');
   const meterEl = $('#p-meter'), mainBtn = $('#p-main'), endBtn = $('#p-end');
-  const nextEl = $('#p-next');
+  const nextEl = $('#p-next'), ensoEl = $('#p-enso');
 
   // ---- timeline: show every coach check-in before it happens ----
   // Markers are placed by time and colored by what kind of moment they are,
@@ -207,10 +229,34 @@ export function render(el, params) {
     return cur;
   }
 
-  function showCue(text) {
+  // Every spoken cue lands as a ripple on the water — the voice made visible.
+  // Breath cues also raise the pacer orb, so "in for four, out for six" is
+  // something you follow rather than something you have to remember.
+  function showCue(text, kind = null) {
     cueEl.hidden = false;
     cueEl.textContent = text;
+    cueEl.classList.remove('cue-in');
+    void cueEl.offsetWidth;
+    cueEl.classList.add('cue-in');
     coach.say(text);
+    zen.ripple(kind === 'interval' ? 1.25 : kind === 'close' ? 1.4 : 0.95);
+    if (kind === 'breath') showOrb();
+    else hideOrb();
+  }
+
+  function showOrb() {
+    const orbEl = $('#p-orb');
+    if (!orbEl || !orbEl.hidden) return;
+    orbEl.hidden = false;
+    orb = breathOrb(orbEl);
+  }
+
+  function hideOrb() {
+    const orbEl = $('#p-orb');
+    if (!orbEl || orbEl.hidden) return;
+    orb?.stop();
+    orb = null;
+    orbEl.hidden = true;
   }
 
   async function grabWakeLock() {
@@ -222,13 +268,15 @@ export function render(el, params) {
     lastResume = Date.now();
     coach.setEnabled(store.get().settings.voice);
     grabWakeLock();
-    clockEl.hidden = false; segEl.hidden = guided ? false : true;
+    $('#p-enso-wrap').hidden = false;
+    segEl.hidden = guided ? false : true;
     mainBtn.textContent = 'Pause';
     mainBtn.classList.remove('pulse');
     endBtn.hidden = false;
     $('#p-hint').hidden = true;
     el.querySelectorAll('.player-hero .ph-sub').forEach(n => n.remove());
     el.querySelector('#p-legend')?.remove(); // the timeline speaks for itself now
+    el.querySelector('.player-hero h1')?.remove(); // the title lives in the header now
     el.querySelector('.player-hero .em')?.classList.add('moving');
 
     // The first time the coach ever speaks, it owns the robot voice with a wink.
@@ -270,12 +318,16 @@ export function render(el, params) {
         const cue = session.cues[i];
         if (!firedCues.has(i) && t >= cue.at) {
           firedCues.add(i);
-          showCue(cue.say);
+          showCue(cue.say, cue.kind);
         }
       }
+      drawEnso(ensoEl, t / totalSec, { palette: pal, glow: running ? 1 : 0 });
       if (t >= totalSec) { finish(true); return; }
     } else {
       clockEl.textContent = fmtClock(Math.floor(t));
+      // Freestyle has no end, so the ensō breathes around a 10-minute wheel
+      // instead of measuring a finish line.
+      drawEnso(ensoEl, (t % 600) / 600, { palette: pal, glow: running ? 1 : 0 });
       if (t >= nextFreestyleCue) {
         const idx = Math.floor(nextFreestyleCue / 300) % freestyleCues.length;
         showCue(freestyleCues[idx]);
@@ -291,8 +343,11 @@ export function render(el, params) {
     coach.hush();
     wakeLock?.release?.();
     if (minutes < 1) { close(); return; }
+    hideOrb();
     coach.fanfare(); coach.buzz([60, 80, 60]);
     confetti(completed ? 130 : 70);
+    // A bloom of ripples from the center — the pond answering back.
+    for (let i = 0; i < 5; i++) setTimeout(() => zen.ripple(1.5), i * 260);
     if (completed) coach.say('And that is the session. Beautifully done.');
 
     $('#p-body').innerHTML = `
@@ -317,9 +372,14 @@ export function render(el, params) {
         sessionId: guided ? session.id : null,
         mood: b.dataset.mood,
       });
+      // Any finished session counts toward the current program week — you
+      // never have to open the program to make progress in it.
+      const credit = store.creditProgram();
       close('#/today');
       if (!maybeCelebrateGoal(weekBefore)) {
-        toast(`Logged ${minutes} min. See you next time. 💚`);
+        toast(credit
+          ? `Logged ${minutes} min — ${credit.done} down this program week. 💚`
+          : `Logged ${minutes} min. See you next time. 💚`);
       }
     });
   }
@@ -327,6 +387,7 @@ export function render(el, params) {
   function close(dest = '#/move') {
     clearInterval(tick); tick = null;
     clearInterval(musicPoll); musicPoll = null;
+    zen.stop(); orb?.stop();
     coach.hush();
     wakeLock?.release?.();
     location.hash = dest; // explicit — history.back() could leave the app on deep links
@@ -349,6 +410,8 @@ export function render(el, params) {
   return () => {
     clearInterval(tick);
     clearInterval(musicPoll);
+    zen.stop();
+    orb?.stop();
     coach.hush();
     wakeLock?.release?.();
   };
