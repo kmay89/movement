@@ -8,6 +8,8 @@ import * as learn from './views/learn.js';
 import * as together from './views/together.js';
 import * as plan from './views/plan.js';
 import * as you from './views/you.js';
+import { spotify } from './music.js';
+import { toast } from './ui.js';
 
 const view = document.getElementById('view');
 let cleanup = null;
@@ -44,6 +46,17 @@ function route() {
 
 window.addEventListener('hashchange', route);
 route();
+
+// If we just came back from Spotify's consent screen, finish connecting.
+if (location.search.includes('code=') || location.search.includes('error=')) {
+  spotify.completeAuth().then(ok => {
+    if (ok) {
+      toast('Spotify connected — music controls live in the player now 🎶');
+      location.hash = '#/you';
+      route();
+    }
+  });
+}
 
 // Reminder tick: check planned times once a minute while the app is open.
 setInterval(() => plan.checkReminders(), 60 * 1000);

@@ -32,7 +32,9 @@ No shame. No ads. Everything counts.
 ## Guided sessions
 
 Scripted coaching with timed voice cues (Web Speech API — free, offline, private),
-soft chimes, progress, pause/resume, and a mood check at the end. Sessions teach the
+soft chimes, progress, pause/resume, a mood check at the end — and a music bar:
+connect Spotify (Premium) once and get Nike-style play/pause/skip passthrough
+right in the player; Apple Music passthrough ships with the native app. Sessions teach the
 science as you move: post-meal glucose walks, zone-2 easy runs, walk-run progressions,
 morning circadian walks, exercise snacks, strength, yoga wind-downs, walking meditation,
 gratitude walks.
