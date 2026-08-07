@@ -4,6 +4,7 @@ import { store } from '../store.js';
 import { esc, toast, DAY_NAMES, shareApp } from '../ui.js';
 import { byId } from '../data/activities.js';
 import { spotify } from '../music.js';
+import { APP_VERSION, showFullLog } from '../update.js';
 
 export function render(el) {
   const s = store.get();
@@ -95,6 +96,12 @@ export function render(el) {
       <button class="btn ghost small" id="u-reset">Start fresh</button>
     </div>
     <p class="tiny mt12 center">Everything lives on your device. No account, no tracking, no ads. Your movement is yours.</p>
+    <p class="tiny center mt8">
+      <button id="u-version" style="text-decoration:underline; color:var(--ink-faint); font-size:12.5px">
+        Version ${esc(APP_VERSION)} · what’s changed
+      </button>
+    </p>
+    <p class="tiny center mt8">Movement keeps itself up to date — it checks for a new version every hour and whenever you come back to it, then offers a one-tap refresh.</p>
   `;
 
   el.querySelector('#u-goal').addEventListener('click', e => {
@@ -128,6 +135,8 @@ export function render(el) {
     toast('Spotify disconnected.');
     render(el);
   });
+
+  el.querySelector('#u-version').addEventListener('click', () => showFullLog());
 
   el.querySelector('#u-share').addEventListener('click', () => {
     shareApp({

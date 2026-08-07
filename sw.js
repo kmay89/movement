@@ -1,7 +1,7 @@
 // Movement service worker — offline-first so your coach works on any trail,
 // in any basement gym, on any airplane.
 
-const VERSION = 'movement-v1.7.0';
+const VERSION = 'movement-v1.8.0';
 
 const CORE = [
   './',
@@ -14,11 +14,13 @@ const CORE = [
   './js/music.js',
   './js/visuals.js',
   './js/ui.js',
+  './js/update.js',
   './js/data/activities.js',
   './js/data/sessions.js',
   './js/data/learn.js',
   './js/data/sparks.js',
   './js/data/programs.js',
+  './js/data/changelog.js',
   './js/views/today.js',
   './js/views/move.js',
   './js/views/player.js',
@@ -35,10 +37,16 @@ const CORE = [
   './og-image.jpg',
 ];
 
+// Install: cache the app, then WAIT. No skipWaiting() here on purpose — a new
+// version must never swap itself in mid-session. It sits quietly until the
+// page offers a one-tap refresh and the user takes it.
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting())
-  );
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)));
+});
+
+// The page asking us to take over, once the user has tapped Refresh.
+self.addEventListener('message', e => {
+  if (e.data === 'skipWaiting') self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {

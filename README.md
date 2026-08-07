@@ -29,6 +29,30 @@ No shame. No ads. Everything counts.
 | **Plan** | Weekly if-then intentions, calendar export (.ics), reminder notifications |
 | **You** | 10-week heatmap, history, your “why,” settings, data export |
 
+## It updates itself
+
+Installed on a home screen there's no address bar to reload from, so the app
+keeps itself current:
+
+- The service worker **never calls `skipWaiting()` on install**. A new version
+  downloads and then *waits* — we never swap the app out from under someone
+  mid-session.
+- The page checks for a new version **every hour and whenever you come back to
+  the app**, then shows a banner: *"A new version is ready. Your history stays
+  exactly as it is."* One tap posts `skipWaiting` to the waiting worker, it
+  takes over, and the page reloads once.
+- The reload is guarded so it only fires for a genuine update — our worker
+  calls `clients.claim()`, which also fires `controllerchange` on the very
+  first install, and reloading there would make every new visitor see the app
+  flash for no reason.
+- Afterwards you get **the log** — a short note on what changed, in plain
+  language. Browsable anytime from **You → version**.
+
+User data lives in `localStorage`, entirely separate from the cached app
+files, so an update never touches a single logged minute. When you ship,
+bump `APP_VERSION` in `js/data/changelog.js` (add an entry) and `VERSION` in
+`sw.js`.
+
 ## First run: why this exists
 
 A single scannable screen on first launch (and always available from

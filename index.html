@@ -70,13 +70,8 @@
     </nav>
   </div>
 
+  <!-- Registration lives in js/update.js, alongside the update banner and
+       the version log it shows afterwards. -->
   <script type="module" src="./js/app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
-    }
-  </script>
 </body>
 </html>
