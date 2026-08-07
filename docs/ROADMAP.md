@@ -11,6 +11,24 @@ A zero-dependency, offline-first PWA:
 - ✅ Circles (local-first, non-competitive), water tracking, gentle streaks, heatmap
 - ✅ All data on-device; JSON export
 
+## Music passthrough (Nike-style in-player controls)
+
+What's shipped: a **music bar in the session player**. Without setup it offers
+quick launchers (Spotify / Apple Music open alongside the coach). With a
+one-time connect, it becomes real passthrough: **Spotify Connect** (Web API +
+client-side PKCE — no server) shows now-playing and controls play/pause/skip
+of whatever device Spotify is on. Premium accounts only; the user supplies
+their own (free) Spotify Client ID from developer.spotify.com.
+
+What needs native code (Phase 4's Capacitor wrap):
+
+- **Apple Music passthrough** — `MPMusicPlayerController.systemMusicPlayer`
+  controls the Music app's queue directly; no web equivalent exists.
+  (MusicKit JS exists but is its own web player and needs a paid Apple
+  Developer token — not passthrough.)
+- **Spotify without the manual Client ID step** — the native Spotify App
+  Remote SDK, plus a first-party registered app so users just tap "Connect".
+
 ## Phase 2 — deepen the PWA
 
 - **Recorded human coach audio** as an optional download per session (speech synthesis

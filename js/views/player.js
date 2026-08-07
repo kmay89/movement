@@ -7,6 +7,7 @@ import { coach } from '../audio.js';
 import { esc, toast, fmtClock, confetti, maybeCelebrateGoal } from '../ui.js';
 import { sessionById } from '../data/sessions.js';
 import { byId as activityById } from '../data/activities.js';
+import { spotify } from '../music.js';
 
 const freestyleCues = [
   'Still with you. However you’re moving, it counts.',
@@ -56,6 +57,7 @@ export function render(el, params) {
       </div>
 
       <div class="player-meter" ${guided ? '' : 'hidden'}><i id="p-meter" style="width:0%"></i></div>
+      <div class="music-bar" id="m-bar"></div>
       <div class="player-controls">
         <button class="pbtn main pulse" id="p-main">Start</button>
         <button class="pbtn" id="p-end" hidden>End</button>
@@ -71,6 +73,53 @@ export function render(el, params) {
   const $ = id => el.querySelector(id);
   const clockEl = $('#p-clock'), segEl = $('#p-seg'), cueEl = $('#p-cue');
   const meterEl = $('#p-meter'), mainBtn = $('#p-main'), endBtn = $('#p-end');
+
+  // ---- music bar: Spotify passthrough when connected, launchers otherwise ----
+  let musicPoll = null;
+
+  function initMusicBar() {
+    const bar = $('#m-bar');
+    if (!bar) return;
+    if (!spotify.connected()) {
+      bar.innerHTML = `
+        <span class="m-track">Music? Bring your own — it plays alongside the coach.</span>
+        <span class="m-launch">
+          <a class="mchip" href="https://open.spotify.com" target="_blank" rel="noopener">Spotify</a>
+          <a class="mchip" href="https://music.apple.com" target="_blank" rel="noopener">Music</a>
+        </span>`;
+      return;
+    }
+    bar.innerHTML = `
+      <span class="m-track" id="m-track">🎶 Checking what’s playing…</span>
+      <span class="m-controls">
+        <button class="mbtn" id="m-prev" aria-label="Previous track">⏮</button>
+        <button class="mbtn" id="m-toggle" aria-label="Play or pause">▶︎</button>
+        <button class="mbtn" id="m-next" aria-label="Next track">⏭</button>
+      </span>`;
+    let playing = false;
+    const refresh = async () => {
+      const np = await spotify.nowPlaying();
+      const trackEl = $('#m-track'), toggleEl = $('#m-toggle');
+      if (!trackEl || !toggleEl) return; // bar was replaced (session finished)
+      if (np) {
+        playing = np.playing;
+        trackEl.textContent = `🎶 ${np.title} — ${np.artist}`;
+        toggleEl.textContent = playing ? '⏸' : '▶︎';
+      } else {
+        playing = false;
+        trackEl.textContent = '🎶 Press play in Spotify once — then control it here.';
+        toggleEl.textContent = '▶︎';
+      }
+    };
+    const act = async fn => { await fn(); setTimeout(refresh, 350); };
+    $('#m-toggle').addEventListener('click', () => act(() => (playing ? spotify.pause() : spotify.play())));
+    $('#m-next').addEventListener('click', () => act(() => spotify.next()));
+    $('#m-prev').addEventListener('click', () => act(() => spotify.prev()));
+    refresh();
+    musicPoll = setInterval(refresh, 5000);
+  }
+
+  initMusicBar();
 
   function currentSegment(t) {
     if (!guided) return null;
@@ -196,6 +245,7 @@ export function render(el, params) {
 
   function close(dest = '#/move') {
     clearInterval(tick); tick = null;
+    clearInterval(musicPoll); musicPoll = null;
     coach.hush();
     wakeLock?.release?.();
     location.hash = dest; // explicit — history.back() could leave the app on deep links
@@ -217,6 +267,7 @@ export function render(el, params) {
   // cleanup when the router swaps views
   return () => {
     clearInterval(tick);
+    clearInterval(musicPoll);
     coach.hush();
     wakeLock?.release?.();
   };

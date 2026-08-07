@@ -3,6 +3,7 @@
 import { store } from '../store.js';
 import { esc, toast, DAY_NAMES } from '../ui.js';
 import { byId } from '../data/activities.js';
+import { spotify } from '../music.js';
 
 export function render(el) {
   const s = store.get();
@@ -52,6 +53,27 @@ export function render(el) {
       <button class="btn block mt12" id="u-save">Save</button>
     </div>
 
+    <h2 class="section-title">Music</h2>
+    <div class="card" id="music-card">
+      ${spotify.connected() ? `
+        <b>🎶 Spotify controls connected</b>
+        <p class="muted mt8">Play, pause, and skip live in the session player — whatever device your Spotify is playing on. (Apple Music controls need the native app; it’s on the roadmap.)</p>
+        <button class="btn ghost small mt12" id="sp-off">Disconnect</button>
+      ` : `
+        <b>🎶 Control your music mid-session</b>
+        <p class="muted mt8">Connect Spotify and get play / pause / skip right inside the player — the Nike-style passthrough. Needs Spotify Premium and a one-time, slightly nerdy setup:</p>
+        <ol class="muted" style="margin:10px 0 0 20px; font-size:14px">
+          <li style="margin-bottom:6px">Create a (free) app at <b>developer.spotify.com/dashboard</b></li>
+          <li style="margin-bottom:6px">Add this exact Redirect URI to it:<br><code style="font-size:12px; word-break:break-all" id="sp-uri"></code></li>
+          <li>Paste the app’s <b>Client ID</b> below and connect</li>
+        </ol>
+        <label class="field">Spotify Client ID</label>
+        <input type="text" id="sp-id" placeholder="e.g. 1a2b3c4d5e6f…" autocomplete="off">
+        <button class="btn block mt12" id="sp-connect">Connect Spotify</button>
+        <p class="tiny mt8">Your tokens stay on this device. Apple Music passthrough requires native APIs — it ships with the iOS app (see roadmap).</p>
+      `}
+    </div>
+
     <div class="card flat">
       <b>📲 Put Movement on your phone</b>
       <p class="muted mt8">On iPhone: open this app in Safari → Share → <b>Add to Home Screen</b>. It installs like a native app — full screen, offline, with notifications. Android: Chrome will offer “Install app”.</p>
@@ -79,6 +101,20 @@ export function render(el) {
       st.settings.weeklyGoalMin = Number(el.querySelector('#u-goal .on')?.dataset.g || 150);
     });
     toast('Saved 💚');
+    render(el);
+  });
+
+  // Music card
+  const uriEl = el.querySelector('#sp-uri');
+  if (uriEl) uriEl.textContent = spotify.redirectUri();
+  el.querySelector('#sp-connect')?.addEventListener('click', () => {
+    const id = el.querySelector('#sp-id').value.trim();
+    if (!id) { toast('Paste your Spotify Client ID first 🙂'); return; }
+    spotify.beginAuth(id);
+  });
+  el.querySelector('#sp-off')?.addEventListener('click', () => {
+    spotify.disconnect();
+    toast('Spotify disconnected.');
     render(el);
   });
 
