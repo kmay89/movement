@@ -438,8 +438,97 @@ h2.section-title {
   opacity: 0.95;
 }
 
-.player-meter { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.2); overflow: hidden; margin: 20px 0; }
-.player-meter > i { display: block; height: 100%; background: #ffd6aa; transition: width 1s linear; }
+/* ---------- session timeline with coach check-in markers ---------- */
+
+.timeline { margin: 22px 0 16px; }
+
+.tl-track {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.tl-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: #ffd6aa;
+  transition: width 1s linear;
+}
+
+/* inset so the 0% and 100% markers sit fully on the track, not half off it */
+.tl-marks { position: absolute; inset: 0 7px; }
+
+/* segment boundaries — where the session changes character. Taller than the
+   cue dots so they still read on dense interval sessions. */
+.tl-seg {
+  position: absolute;
+  top: -6px;
+  width: 2px;
+  height: 18px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* one dot per spoken cue, colored by what kind of moment it is */
+.tl-cue {
+  position: absolute;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--cue-color, #fff);
+  opacity: 0.55;
+  border: 1.5px solid rgba(12, 74, 66, 0.55);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tl-cue.past { opacity: 1; }
+
+.tl-cue.next {
+  opacity: 1;
+  transform: scale(1.35);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25);
+  animation: cue-breathe 2s ease-in-out infinite;
+}
+
+@keyframes cue-breathe {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18); }
+  50%      { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.07); }
+}
+
+/* larger touch target than the visible dot */
+.tl-cue::after { content: ""; position: absolute; inset: -9px; }
+
+.tl-next {
+  margin-top: 14px;
+  font-size: 13px;
+  text-align: center;
+  opacity: 0.85;
+  min-height: 18px;
+}
+
+.tl-next b { font-weight: 700; }
+
+/* legend, shown before you press Start */
+.cue-legend {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  justify-content: center;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.cue-legend .cl-title { width: 100%; font-weight: 700; font-size: 12.5px; opacity: 0.9; }
+.cue-legend .cl-item { display: inline-flex; align-items: center; gap: 5px; }
+.cue-legend .cl-item i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
 
 /* music bar — passthrough controls (or launchers) above the session buttons */
 .music-bar {

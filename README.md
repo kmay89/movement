@@ -34,7 +34,17 @@ No shame. No ads. Everything counts.
 Scripted coaching with timed voice cues (Web Speech API — free, offline, private),
 soft chimes, progress, pause/resume, a mood check at the end — and a music bar:
 connect Spotify (Premium) once and get Nike-style play/pause/skip passthrough
-right in the player; Apple Music passthrough ships with the native app. Sessions teach the
+right in the player; Apple Music passthrough ships with the native app.
+
+**You can see the whole session before you start it.** Every spoken check-in
+appears as a colored marker on the timeline — 👋 welcome, 🧍 body check,
+🔬 science, ✨ motivation, 🚩 milestone, ⏱️ do-this-now, 🌬️ breath, 🎉 finish —
+with taller ticks at segment boundaries. Markers brighten as they pass, the
+next one pulses, and a line under the track reads *"Next: ✨ Motivation in
+0:18."* Cue timing follows the activity: interval runs get a 10-second
+countdown and near-silence during hard efforts (teaching moves to the recovery
+walks), strength gets one call per movement landing on the set, and yoga and
+mindfulness stay deliberately sparse — the silence is the practice. Sessions teach the
 science as you move: post-meal glucose walks, zone-2 easy runs, walk-run progressions,
 morning circadian walks, exercise snacks, strength, yoga wind-downs, walking meditation,
 gratitude walks.

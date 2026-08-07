@@ -5,7 +5,7 @@
 import { store } from '../store.js';
 import { coach } from '../audio.js';
 import { esc, toast, fmtClock, confetti, maybeCelebrateGoal } from '../ui.js';
-import { sessionById } from '../data/sessions.js';
+import { sessionById, cueKinds } from '../data/sessions.js';
 import { byId as activityById } from '../data/activities.js';
 import { spotify } from '../music.js';
 
@@ -54,9 +54,18 @@ export function render(el, params) {
         <div class="player-clock" id="p-clock" hidden>${guided ? fmtClock(totalSec) : '0:00'}</div>
         <div class="player-segment" id="p-seg" hidden></div>
         <div class="player-cue" id="p-cue" hidden></div>
+        ${guided ? `<div class="cue-legend" id="p-legend"></div>` : ''}
       </div>
 
-      <div class="player-meter" ${guided ? '' : 'hidden'}><i id="p-meter" style="width:0%"></i></div>
+      ${guided ? `
+      <div class="timeline" id="p-timeline">
+        <div class="tl-track">
+          <i class="tl-fill" id="p-meter"></i>
+          <div class="tl-marks" id="p-marks"></div>
+        </div>
+        <div class="tl-next" id="p-next"></div>
+      </div>` : `
+      <div class="timeline"><div class="tl-next" id="p-next"></div></div>`}
       <div class="music-bar" id="m-bar"></div>
       <div class="player-controls">
         <button class="pbtn main pulse" id="p-main">Start</button>
@@ -73,6 +82,76 @@ export function render(el, params) {
   const $ = id => el.querySelector(id);
   const clockEl = $('#p-clock'), segEl = $('#p-seg'), cueEl = $('#p-cue');
   const meterEl = $('#p-meter'), mainBtn = $('#p-main'), endBtn = $('#p-end');
+  const nextEl = $('#p-next');
+
+  // ---- timeline: show every coach check-in before it happens ----
+  // Markers are placed by time and colored by what kind of moment they are,
+  // so the session reads at a glance instead of arriving as a surprise.
+  function buildTimeline() {
+    if (!guided) {
+      nextEl.textContent = 'Your coach checks in every few minutes.';
+      return;
+    }
+    const pct = t => (t / totalSec) * 100;
+    const segMarks = session.segments.slice(1).map(seg =>
+      `<span class="tl-seg" style="left:${pct(seg.at)}%" title="${esc(seg.label)} · ${fmtClock(seg.at)}"></span>`).join('');
+    const cueMarks = session.cues.map((c, i) => {
+      const k = cueKinds[c.kind] || cueKinds.motivate;
+      return `<button class="tl-cue" data-i="${i}" style="left:${pct(c.at)}%; --cue-color:${k.color}"
+        title="${fmtClock(c.at)} · ${esc(k.label)}"
+        aria-label="${esc(k.label)} check-in at ${fmtClock(c.at)}"></button>`;
+    }).join('');
+    $('#p-marks').innerHTML = segMarks + cueMarks;
+
+    // Legend: only the kinds this session actually uses.
+    const used = [...new Set(session.cues.map(c => c.kind))];
+    $('#p-legend').innerHTML =
+      `<div class="cl-title">${session.cues.length} coach check-ins along the way</div>` +
+      used.map(k => {
+        const info = cueKinds[k] || cueKinds.motivate;
+        return `<span class="cl-item"><i style="background:${info.color}"></i>${info.em} ${esc(info.label)}</span>`;
+      }).join('');
+
+    // Tapping a marker previews what's coming without spoiling the words.
+    $('#p-marks').addEventListener('click', e => {
+      const b = e.target.closest('.tl-cue');
+      if (!b) return;
+      const c = session.cues[Number(b.dataset.i)];
+      const k = cueKinds[c.kind] || cueKinds.motivate;
+      const when = elapsed() >= c.at ? 'already passed' : `in ${fmtClock(Math.round(c.at - elapsed()))}`;
+      toast(`${k.em} ${k.label} at ${fmtClock(c.at)} — ${when}`);
+    });
+  }
+
+  function updateTimeline(t) {
+    if (!guided) {
+      if (started) nextEl.textContent = `Next check-in in ${fmtClock(Math.max(0, Math.ceil(nextFreestyleCue - t)))}`;
+      return;
+    }
+    const marks = $('#p-marks').children;
+    for (const m of marks) {
+      if (!m.classList.contains('tl-cue')) continue;
+      m.classList.toggle('past', t >= session.cues[Number(m.dataset.i)].at);
+    }
+    // Before the clock starts, the 0:00 cue is still ahead of you.
+    const nextIdx = started
+      ? session.cues.findIndex(c => c.at > t)
+      : 0;
+    [...marks].forEach(m => m.classList.remove('next'));
+    if (nextIdx >= 0) {
+      const c = session.cues[nextIdx];
+      const k = cueKinds[c.kind] || cueKinds.motivate;
+      $(`.tl-cue[data-i="${nextIdx}"]`)?.classList.add('next');
+      nextEl.innerHTML = started
+        ? `Next: <b>${k.em} ${esc(k.label)}</b> in ${fmtClock(Math.max(0, Math.ceil(c.at - t)))}`
+        : `Starts with <b>${k.em} ${esc(k.label)}</b>`;
+    } else {
+      nextEl.textContent = 'Last stretch — no more interruptions.';
+    }
+  }
+
+  buildTimeline();
+  updateTimeline(0);
 
   // ---- music bar: Spotify passthrough when connected, launchers otherwise ----
   let musicPoll = null;
@@ -149,6 +228,7 @@ export function render(el, params) {
     endBtn.hidden = false;
     $('#p-hint').hidden = true;
     el.querySelectorAll('.player-hero .ph-sub').forEach(n => n.remove());
+    el.querySelector('#p-legend')?.remove(); // the timeline speaks for itself now
     el.querySelector('.player-hero .em')?.classList.add('moving');
 
     // The first time the coach ever speaks, it owns the robot voice with a wink.
@@ -193,7 +273,7 @@ export function render(el, params) {
           showCue(cue.say);
         }
       }
-      if (t >= totalSec) finish(true);
+      if (t >= totalSec) { finish(true); return; }
     } else {
       clockEl.textContent = fmtClock(Math.floor(t));
       if (t >= nextFreestyleCue) {
@@ -202,6 +282,7 @@ export function render(el, params) {
         nextFreestyleCue += 300;
       }
     }
+    updateTimeline(t);
   }
 
   function finish(completed) {
@@ -223,7 +304,7 @@ export function render(el, params) {
           `<button class="pbtn" data-mood="${m}" style="font-size:26px; padding:12px 18px">${e}</button>`).join('')}
       </div>
     `;
-    el.querySelector('.player-meter')?.remove();
+    el.querySelector('.timeline')?.remove();
     mainBtn.hidden = true; endBtn.hidden = true;
 
     $('#p-mood').addEventListener('click', e => {
